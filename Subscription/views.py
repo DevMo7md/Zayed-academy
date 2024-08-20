@@ -10,12 +10,23 @@ from django.conf import settings
 def subscribe(request):
     if request.method == 'POST':
         subscription, created = Subscription.objects.get_or_create(user=request.user)
-        subscription.start_date = datetime.now()
-        subscription.end_date = subscription.start_date + timedelta(days=30)
-        subscription.save()
+        if created:  # إذا كان الاشتراك جديدًا
+            subscription.start_date = datetime.now()
+            subscription.end_date = subscription.start_date + timedelta(days=30)
+            subscription.save()
         return redirect('subscription_success')
     
     return render(request, 'subscription/subscribe.html')
+
+@login_required
+def payment_success(request):
+    subscription, created = Subscription.objects.get_or_create(user=request.user)
+    if created:  # إذا كان الاشتراك جديدًا
+        subscription.start_date = datetime.now()
+        subscription.end_date = subscription.start_date + timedelta(days=30)
+        subscription.save()
+    return render(request, 'subscription/success.html')
+
 
 
 @login_required

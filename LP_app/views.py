@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.db.models import Q
 from django.contrib.auth import update_session_auth_hash
+from .decorators import subscription_required
 # Create your views here.
 def landing(request):
     return render(request, 'LP_app/landing.html')
@@ -82,7 +83,7 @@ def lesson (request, foo):
         return redirect('home')
 
 
-
+@subscription_required
 def video(request, pk):
 
     lesson = Lesson.objects.get(id=pk)
@@ -541,6 +542,7 @@ def edit_ps(request):
 
     return render(request, 'LP_app/edit_ps.html')
 
+@subscription_required
 def pdfs(request):
     err = None
     if request.user.is_staff:

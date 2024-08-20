@@ -31,6 +31,9 @@ class Student(models.Model):
     photo = models.ImageField(upload_to='student_photos', null=True, blank=True)
     enrolled_courses = models.ManyToManyField(Category, related_name='students')
     is_verified = models.BooleanField(default=False)
+    subscription_active = models.BooleanField(default=False)
+    subscription_expiry = models.DateTimeField(null=True, blank=True)
+
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} - username: {self.user.username}'
