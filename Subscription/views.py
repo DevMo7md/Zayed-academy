@@ -32,7 +32,7 @@ def payment_success(request):
 @login_required
 def initiate_payment(request):
     if request.method == 'POST':
-        student = Student.objects.get(id=request.user.id)
+        student = Student.objects.get(user=request.user)
         # بيانات الدفع
         amount = 100  # المبلغ بالقرش، لذلك 100 يعني 1 جنيه مصري
         auth_token = get_paymob_auth_token()
@@ -58,7 +58,7 @@ def initiate_payment(request):
             "billing_data": {
                 "first_name": request.user.first_name,
                 "last_name": request.user.last_name,
-                "phone_number": student.phone_num,  # ضع هنا رقم هاتف المستخدم
+                "phone_number": student.phone_num,
                 "email": request.user.email,
                 "country": "EG",
                 "city": "Cairo",
@@ -74,7 +74,8 @@ def initiate_payment(request):
         payment_key = payment_key_response.json()
 
         # توجيه المستخدم إلى صفحة الدفع
-        return redirect(f"https://accept.paymobsolutions.com/api/acceptance/iframes/{settings.PAYMOB_IFRAME_ID}?payment_token={payment_key['token']}")
+        payment_url = f"https://accept.paymobsolutions.com/api/acceptance/iframes/{settings.PAYMOB_IFRAME_ID}?payment_token={payment_key['token']}"
+        return redirect(payment_url)
 
     return render(request, 'subscription/subscribe.html')
 
