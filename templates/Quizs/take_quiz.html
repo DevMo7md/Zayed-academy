@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <form method="POST" style="padding: 20px;">
+        {% csrf_token %}
+        {% for question in questions %}
+            <h4>{{ question.text }}</h4>
+            {% for choice in question.choices.all %}
+                <input type="radio" name="{{ question.id }}" value="{{ choice.id }}">
+                {{ choice.text }}<br>
+            {% endfor %}
+            <button type="submit" class="btn btn-success">Submit Quiz</button>
+        {% endfor %}
+    </form>
+</div>    
+{%endblock%}

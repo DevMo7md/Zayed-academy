@@ -30,6 +30,8 @@ def home(request):
         return redirect('home')  # Redirect to main page if video doesn't exist
 
 def lesson (request, foo):
+    
+    foo = foo.replace('-', ' ')
     try:
         if request.user.is_superuser or request.user.is_staff:
             category = Category.objects.get(name=foo)

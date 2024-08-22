@@ -40,12 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'LP_app',
     'Subscription',
+    'Qiuzs',
 
 ]
 
 PAYMOB_API_KEY = "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2T1Rnek1URTJMQ0p1WVcxbElqb2lhVzVwZEdsaGJDSjkuOTVtRlJfcm9xSzlodzlpaU80UVoxUmRaRFZ2T3BiY0RQcFdGbjc0R05POVltbGpxUzZjcV9ZUV81THV2bGFzYzdpcVBLaVhLZUd4Qm40anFtMFp5MlE=="
 PAYMOB_INTEGRATION_ID = "4602060"
-PAYMOB_IFRAME_ID = "853728"
+
+TIME_ZONE = 'Africa/Cairo'
+USE_TZ = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
