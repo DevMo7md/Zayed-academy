@@ -7,30 +7,35 @@ from django.contrib import messages
 from django.db.models import Q
 
 # Create your views here.
-def quizs_home (request, foo):
+import logging
 
+def quizs_home(request):
     try:
         quizs = Question.objects.all()
         categories = Category.objects.all()
-        # dashboard
-
+        
         context = {
             'quizs': quizs,
             'categories': categories,
         }
         return render(request, 'Quizs/quizs_home.html', context)
-    except:
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
         messages.error(request, "الفيديو المطلوب غير موجود!")
-        return redirect('quizs_home')  # Redirect to main page if video doesn't exist
-    
+        return redirect('home')
+
 @login_required
 def take_quiz(request, foo):
     foo = foo.replace('-', ' ')
-    # تحقق مما إذا كان المستخدم قد أجاب بالفعل على الامتحان
-    if UserAnswer.objects.filter(user=request.user).exists():
-        return redirect('quiz_results')  # إذا كان قد أجاب بالفعل، توجيهه إلى صفحة النتائج
+    context = {}  # Initialize context dictionary
+    category = get_object_or_404(Category, name=foo)
+
+    if UserAnswer.objects.filter(user=request.user, question__category=category).exists():
+        return redirect('quiz_results')  # Redirect to results page if already answered for this quiz
+
+
     if request.user.is_superuser or request.user.is_staff:
-        category = Category.objects.get(name=foo)
+            
         questions = Question.objects.filter(category=category)
         categories = Category.objects.all()
 
@@ -41,16 +46,18 @@ def take_quiz(request, foo):
                     selected_choice = get_object_or_404(Choice, id=selected_choice_id)
                     UserAnswer.objects.create(user=request.user, question=question, selected_choice=selected_choice)
             return redirect('quiz_results')
-        context = {
-            'category':category,
-            'questions':questions,
-            'categories':categories
-        }
+        
+        context.update({
+            'category': category,
+            'questions': questions,
+            'categories': categories,
+        })
     else:
-        student = Student.objects.get(user=request.user)
-        category = Category.objects.get(name=foo)
+        student = get_object_or_404(Student, user=request.user)
+        category = get_object_or_404(Category, name=foo)
         grade = student.alsaf
-        questions = Question.objects.filter(Q(category=category)&Q(grade=grade))
+        questions = Question.objects.filter(Q(category=category) & Q(grade=grade))
+        categories = Category.objects.all()  # Define categories here as well
 
         if request.method == "POST":
             for question in questions:
@@ -59,8 +66,14 @@ def take_quiz(request, foo):
                     selected_choice = get_object_or_404(Choice, id=selected_choice_id)
                     UserAnswer.objects.create(user=request.user, question=question, selected_choice=selected_choice)
             return redirect('quiz_results')
-        
-    return render(request, 'quiz/take_quiz.html', context)
+
+        context.update({
+            'category': category,
+            'questions': questions,
+            'categories': categories,
+        })
+        print(questions)
+    return render(request, 'Quizs/take_quiz.html', context)
 
 
 @login_required

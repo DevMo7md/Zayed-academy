@@ -1,7 +1,14 @@
 import requests
 
 
+
+
+
 apiKey = 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2T1Rnek1URTJMQ0p1WVcxbElqb2lhVzVwZEdsaGJDSjkuOTVtRlJfcm9xSzlodzlpaU80UVoxUmRaRFZ2T3BiY0RQcFdGbjc0R05POVltbGpxUzZjcV9ZUV81THV2bGFzYzdpcVBLaVhLZUd4Qm40anFtMFp5MlE='
+
+
+
+
 
 class PaymobCardManager:
     def getPaymentKey(self, amount, currency, integration_id):
@@ -26,7 +33,7 @@ class PaymobCardManager:
             print("Exc==========================================")
             print(str(e))
             raise Exception()
- 
+
     def _getAuthanticationToken(self, api_key):
         response = requests.post(
             "https://accept.paymob.com/api/auth/tokens",
@@ -39,7 +46,7 @@ class PaymobCardManager:
         print(response.json()["token"])
         print("-----------------------------")
         return response.json()["token"]
- 
+
     def _getOrderId(self, authanticationToken, amount, currency):
         response = requests.post(
             "https://accept.paymob.com/api/ecommerce/orders",
@@ -56,7 +63,7 @@ class PaymobCardManager:
         print(response.json()["id"])
         print("--------------------------")
         return response.json()["id"]
- 
+
     def _getPaymentKey(self, authanticationToken, orderId, amount, currency, integration_id):
         response = requests.post(
             "https://accept.paymob.com/api/acceptance/payment_keys",
@@ -89,3 +96,9 @@ class PaymobCardManager:
         print(response.json()["token"])
         print("---------------------------")
         return response.json()["token"]
+
+
+
+
+
+

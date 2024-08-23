@@ -9,8 +9,8 @@
                 <input type="radio" name="{{ question.id }}" value="{{ choice.id }}">
                 {{ choice.text }}<br>
             {% endfor %}
-            <button type="submit" class="btn btn-success">Submit Quiz</button>
         {% endfor %}
+        <button type="submit" class="btn btn-success" style="margin: 20px;">Submit Quiz</button>
     </form>
 </div>    
 {%endblock%}
