@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Quiz Results</h2>
-<p>Your score: {{ score }}%</p>
-<p>Total questions: {{ total_questions }}</p>
-<p>Correct answers: {{ correct_answers }}</p>
-<a href="{% url 'home' %}" class="btn btn-warning"> العودة للصفحة الرئيسية </a>
+
+    <h2>Quiz Results</h2>
+    <p>Your score: {{ score }}%</p>
+    <p>Total questions: {{ total_questions }}</p>
+    <p>Correct answers: {{ correct_answers }}</p>
+    <a href="{% url 'take_quiz' category.name %}" class="btn btn-warning"> اعادة المحاولة </a>
+
 {% endblock %}
+

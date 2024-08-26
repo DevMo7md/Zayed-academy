@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.db.models import Q
 from django.contrib.auth import update_session_auth_hash
 from .decorators import subscription_required
+from Subscription.models import *
 # Create your views here.
 def landing(request):
     return render(request, 'LP_app/landing.html')
@@ -30,7 +31,7 @@ def home(request):
         return redirect('home')  # Redirect to main page if video doesn't exist
 
 def lesson (request, foo):
-    
+
     foo = foo.replace('-', ' ')
     try:
         if request.user.is_superuser or request.user.is_staff:
@@ -190,6 +191,7 @@ def logout_user (request):
 
 def dashboard(request):
 
+
     if request.method == 'POST':
         title = request.POST.get('title')
         lesson_file = request.FILES.get('lesson')
@@ -230,6 +232,7 @@ def dashboard(request):
     lesson_num = len(lessons)
     categories = Category.objects.all()
     grades = Grade.objects.all()
+    students_num = Subscription.objects.all().count()
 
     context = {
         'lesson_titles': lesson_titles,
@@ -238,6 +241,7 @@ def dashboard(request):
         'categories': categories,
         'lessonss':lessons,
         'grades':grades,
+        'students_num':students_num,
     }
     return render(request, 'LP_app/dashboard.html', context)
 
@@ -382,6 +386,7 @@ def teacher_pdfs(request):
         except Category.DoesNotExist:
             messages.error(request, "التصنيف المحدد غير موجود.")
             return redirect('dashboard')
+        
         Pdfs.objects.create(
             name=title,
             grade=grade,

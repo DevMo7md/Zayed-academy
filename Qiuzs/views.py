@@ -30,9 +30,6 @@ def take_quiz(request, foo):
     context = {}  # Initialize context dictionary
     category = get_object_or_404(Category, name=foo)
 
-    if UserAnswer.objects.filter(user=request.user, question__category=category).exists():
-        return redirect('quiz_results')  # Redirect to results page if already answered for this quiz
-
 
     if request.user.is_superuser or request.user.is_staff:
             
@@ -65,7 +62,7 @@ def take_quiz(request, foo):
                 if selected_choice_id:
                     selected_choice = get_object_or_404(Choice, id=selected_choice_id)
                     UserAnswer.objects.create(user=request.user, question=question, selected_choice=selected_choice)
-            return redirect('quiz_results')
+            return redirect('quiz_results', foo)
 
         context.update({
             'category': category,
@@ -77,8 +74,14 @@ def take_quiz(request, foo):
 
 
 @login_required
-def quiz_results(request):
-    user_answers = UserAnswer.objects.filter(user=request.user)
+def quiz_results(request, foo):
+    foo = foo.replace('-', ' ')
+    # Retrieve the specific category (quiz) by name
+    category = get_object_or_404(Category, name=foo)
+    
+    # Filter user answers by the specific category
+    user_answers = UserAnswer.objects.filter(user=request.user, question__category=category)
+    
     total_questions = user_answers.count()
     correct_answers = user_answers.filter(selected_choice__is_correct=True).count()
     score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
@@ -86,5 +89,70 @@ def quiz_results(request):
     return render(request, 'Quizs/quiz_results.html', {
         'score': score,
         'total_questions': total_questions,
-        'correct_answers': correct_answers
+        'correct_answers': correct_answers,
+        'category': category,  # Pass category to the template for additional context
     })
+
+
+def teacher_quiz(request):
+    if request.user.is_superuser or request.user.is_staff:
+        questions = Question.objects.all()
+        answers = Choice.objects.all()
+        categories = Category.objects.all()
+        grades = Grade.objects.all()
+        lessons = Lesson.objects.all()
+
+        if request.method == 'POST' and 'btn-question' in request.POST :
+            #Question
+            question = request.POST.get('question')
+            cat_id = request.POST.get('category')
+            lesson_id = request.POST.get('lesson')
+            grade_id = request.POST.get('grade')
+
+            try:
+                grade = Grade.objects.get(id=grade_id)
+                cate = Category.objects.get(id=cat_id)
+                lesson = Lesson.objects.get(id=lesson_id)
+
+            except:
+                messages.error(request, "التصنيف او الصف او الحصة المحدد غير موجود.")
+                return redirect('dashboard')
+            
+            Question.objects.create(
+                text=question,
+                category=cate,
+                lesson=lesson,
+                grade=grade
+            )
+            messages.success(request, 'تم حفظ السؤال بنجاح')
+            return redirect('teacher_quiz')
+        
+        if request.method == 'POST' and 'btn-answer' in request.POST:
+            # Choice
+            questions_ch_id = request.POST.get('questions-ch')
+            choice = request.POST.get('choice')
+            is_correct = request.POST.get('is_correct') == 'on'
+
+            try:
+                question_ch = Question.objects.get(id=questions_ch_id)
+            except:
+                messages.error(request, "السؤال المحدد غير موجود.")
+
+            Choice.objects.create(
+                question=question_ch,
+                text=choice,
+                is_correct=is_correct
+            )    
+            messages.success(request, 'تم حفظ الإجابة بنجاح')
+            return redirect('teacher_quiz')
+        
+        context = {
+            'lessons':lessons,
+            'grades':grades,
+            'categories':categories,
+            'answers':answers,
+            'questions':questions,
+        }
+        return render(request, 'Quizs/teacher_quiz.html', context)
+    
+# def edit_quiz (request):

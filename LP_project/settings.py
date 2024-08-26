@@ -22,13 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-((b64h9-is_)lcyg!7^z%#nttlirrj=c608k%dm)owc$j&w49%'
-
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000', 'https://glad-cheaply-condor.ngrok-free.app']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.22']
+ALLOWED_HOSTS = ['*']
 
-
+PAYMOB_HMAC ='DADDAEF08C6ED42F0F9ABD19DF76927F'
 # Application definition
 
 INSTALLED_APPS = [
