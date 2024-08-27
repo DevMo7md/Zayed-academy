@@ -10,6 +10,12 @@ from django.db.models import Q
 from django.contrib.auth import update_session_auth_hash
 from .decorators import subscription_required
 from Subscription.models import *
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.crypto import get_random_string
+from .models import Grade, Student, EmailVerification
+from django.contrib.auth.models import User
+
 # Create your views here.
 def landing(request):
     return render(request, 'LP_app/landing.html')
@@ -85,7 +91,6 @@ def lesson (request, foo):
         messages.error(request, f"حدث خطأ غير متوقع: {str(e)}")
         return redirect('home')
 
-
 @subscription_required
 def video(request, pk):
 
@@ -119,11 +124,15 @@ def login_page(request):
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
-            messages.success(request, "تم تسجيل الدخول بنجاح")
-            return redirect('home')
+            if user.is_active:
+                login(request, user)
+                messages.success(request, "تم تسجيل الدخول بنجاح")
+                return redirect('home')
+            else:
+                messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
+                return redirect('login')
         else:
-            messages.warning(request, "عذراً اسم المستخدم او كلمة المرور غير صحيحه الرجاء المحاوله مره اخرى")
+            messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
             return redirect('login')
         
     return render(request, 'LP_app/login.html', {})
@@ -154,7 +163,23 @@ def register(request):
             
             else:
                 user = User.objects.create_user(username=username, email=email, password=password1, first_name=first_name, last_name=last_name)
+                user.is_active = False  
                 user.save()
+                
+                # Generate a verification code
+                verification_code = get_random_string(length=8)
+                EmailVerification.objects.create(user=user, code=verification_code)
+
+                # Send verification email
+                verification_link = request.build_absolute_uri(f'/verify_email/?code={verification_code}')
+                send_mail(
+                    'تأكيد البريد الإلكتروني',
+                    f'يرجى تأكيد بريدك الإلكتروني عبر هذا الرابط: {verification_link}',
+                    settings.EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
+                )
+
                 if alsaf:
                     try:
                         grade_instance = Grade.objects.get(id=alsaf)
@@ -177,12 +202,26 @@ def register(request):
                         government=government,
                         alsaf=grade_instance,)
                 student.save()
-                login(request, user)
                 messages.success(request, 'لقد تم انشاء حسابك بنجاح ')
-                return redirect('home')
+                return redirect('login')
         else:
             messages.error(request, 'عذراً كلمة المرور غير متوافقة')
     return render(request, 'LP_app/register.html', {'grade':grade})
+
+def verify_email(request):
+    code = request.GET.get('code')
+    try:
+        verification = EmailVerification.objects.get(code=code)
+        user = verification.user
+        user.is_active = True
+        user.save()
+        verification.delete()  # Remove the verification code
+        messages.success(request, 'تم تفعيل حسابك بنجاح. يمكنك الآن تسجيل الدخول.')
+        return redirect('login')
+    except EmailVerification.DoesNotExist:
+        messages.error(request, 'رمز التحقق غير صالح أو منتهي الصلاحية.')
+        return redirect('login')
+
 
 def logout_user (request):
     logout(request)

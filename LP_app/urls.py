@@ -22,5 +22,6 @@ urlpatterns = [
     path('delete-pdf/<int:pk>/', views.delete_pdf, name='delete_pdf'),
     path('teacher-video/', views.teacher_video, name='teacher_video'),
     path('teacher-pdf/', views.teacher_pdfs, name='teacher_pdf'),
+    path('verify_email/', views.verify_email, name='verify_email'),
 
 ]

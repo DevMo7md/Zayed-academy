@@ -30,7 +30,7 @@ def subscribe(request):
                 amount=amount, 
                 currency=currency, 
                 integration_id=integration_id, 
-                email="adadada@gmail.com", 
+                email="request.user.email", 
                 phone_number=22323232, 
                 name='dwdwdwdwd'
                 )

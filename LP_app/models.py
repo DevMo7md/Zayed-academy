@@ -2,6 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 # Create your models here.
+# models.py
+
+class EmailVerification(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=32)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 class Grade(models.Model):
     grade = models.CharField(max_length=50, null=True, blank=True)
 
