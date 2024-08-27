@@ -78,11 +78,11 @@
             <p>{{ ques.lesson.title }}</p>
             <p>{{ ques.grade.grade }}</p>
             <div>
-            <a href="#" class="btn btn bg-danger">
+            <a href="{% url 'delete_quiz' ques.id %}" class="btn btn bg-danger">
                 <i class="fas fa-trash"></i>
             </a>
             <a
-                href="#"
+                href="{% url 'edit_quiz' ques.id %}"
                 class="btn"
                 style="
                 background-color: rgb(202, 43, 226);

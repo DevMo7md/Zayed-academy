@@ -42,7 +42,7 @@ def take_quiz(request, foo):
                 if selected_choice_id:
                     selected_choice = get_object_or_404(Choice, id=selected_choice_id)
                     UserAnswer.objects.create(user=request.user, question=question, selected_choice=selected_choice)
-            return redirect('quiz_results')
+            return redirect('quiz_results', foo)
         
         context.update({
             'category': category,
@@ -155,4 +155,80 @@ def teacher_quiz(request):
         }
         return render(request, 'Quizs/teacher_quiz.html', context)
     
-# def edit_quiz (request):
+def edit_quiz (request, pk):
+
+    quiz_question = Question.objects.get(id=pk)
+    quiz_answers = Choice.objects.filter(question=quiz_question)
+
+    if request.method == 'POST' and 'edited-btn' in request.POST :
+        #Question
+        question = request.POST.get('question')
+        cat_id = request.POST.get('category')
+        lesson_id = request.POST.get('lesson')
+        grade_id = request.POST.get('grade')
+
+        #Coices
+
+        try:
+            cat = Category.objects.get(id=cat_id)
+            grade = Grade.objects.get(id=grade_id)
+            lesson = Lesson.objects.get(id=lesson_id)
+        except:
+            messages.error(request, "التصنيف او الصف او الحصة المحددة غير موجود.")
+            return redirect('teacher_quiz')
+    
+        quiz_question.text = question
+        quiz_question.category = cat           
+        quiz_question.lesson = lesson
+        quiz_question.grade = grade
+        quiz_question.save()
+        # success message
+        messages.success(request, 'تم تعديل السؤال بنجاح')
+        return redirect('teacher_quiz')
+
+            # إذا كان الطلب GET، املأ النموذج بالبيانات الحالية
+    categories = Category.objects.all()
+    grades = Grade.objects.all()
+    lessons = Lesson.objects.all()
+    context = {
+    'lessons':lessons,
+    'grades':grades,
+    'categories':categories,
+    'questions':quiz_question,
+    'quiz_answers':quiz_answers,
+    }
+    return render(request, 'Quizs/quiz_edit.html', context)
+
+def edit_choice(request, pk):
+    choice = Choice.objects.get(id=pk)
+    if request.method == 'POST':
+        answer = request.POST.get('choice')
+        question_id = request.POST.get('question')
+        is_correct = request.POST.get('is_correct') == 'on'
+
+        try:
+            question = Question.objects.get(id=question_id)
+        except:
+            messages.error(request, "السؤال المحدد غير موجود.")
+
+        choice.text = answer
+        choice.question = question
+        choice.is_correct = is_correct
+        choice.save()
+        # success message
+        messages.success(request, 'تم تعديل الخيار بنجاح')
+        return redirect('teacher_quiz')
+    questions = Question.objects.all()
+    context = {
+        'choice':choice,
+        'questions':questions,
+    }
+    return render(request, 'Quizs/edit_choice.html', context)
+
+def delete_quiz(request, pk):
+    question = get_object_or_404(Question, id=pk)
+    if request.method == 'POST':
+        question.delete()
+        messages.success(request, 'تم حذف الامتحان بنجاح')
+        return redirect('teacher_quiz')
+    return render(request, 'Quizs/delete_quiz.html')
