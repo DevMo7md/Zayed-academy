@@ -10,7 +10,7 @@ apiKey = 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMW
 
 
 class PaymobCardManager:
-    def getPaymentKey(self, amount, currency, integration_id, email, phone_number,name):
+    def getPaymentKey(self, amount, currency, integration_id, email, phone_number,first_name, last_name):
         try:
             authanticationToken = self._getAuthanticationToken(api_key=apiKey)
 
@@ -28,7 +28,8 @@ class PaymobCardManager:
                 integration_id = integration_id,
                 email=email,
                 phone_number=phone_number,
-                name=name,
+                first_name=first_name,
+                last_name=last_name
             )
             return paymentKey, orderId
         except Exception as e:
@@ -66,7 +67,7 @@ class PaymobCardManager:
         print("--------------------------")
         return response.json()["id"]
 
-    def _getPaymentKey(self, authanticationToken, orderId, amount, currency, integration_id, email, phone_number, name):
+    def _getPaymentKey(self, authanticationToken, orderId, amount, currency, integration_id, email, phone_number, first_name, last_name):
         response = requests.post(
             "https://accept.paymob.com/api/acceptance/payment_keys",
             json={
@@ -77,8 +78,8 @@ class PaymobCardManager:
                 "currency": currency,
                 "integration_id": integration_id,
                 "billing_data": {
-                    "first_name": name,
-                    "last_name": "lastname",
+                    "first_name": first_name,
+                    "last_name": last_name,
                     "email": email,
                     "phone_number": phone_number,
                     "apartment": "NA",
@@ -164,7 +165,7 @@ class PaymobWalletManager:
         print("--------------------------")
         return response.json()["id"]
 
-    def _getPaymentKey(self, authanticationToken, orderId, amount, currency, integration_id,email, phone_number, name):
+    def _getPaymentKey(self, authanticationToken, orderId, amount, currency, integration_id,email, phone_number, first_name, last_name):
         response = requests.post(
             "https://accept.paymob.com/api/acceptance/payment_keys",
             json={
@@ -175,8 +176,8 @@ class PaymobWalletManager:
                 "currency": currency,
                 "integration_id": integration_id,
                 "billing_data": {
-                    "first_name": name,
-                    "last_name": "lastname",
+                    "first_name": first_name,
+                    "last_name": last_name,
                     "email": email,
                     "phone_number": phone_number,
                     "apartment": "NA",

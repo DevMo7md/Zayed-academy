@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from LP_app.models import *
 from django.contrib import messages
 from django.db.models import Q
+from LP_app.decorators import subscription_required
 
 # Create your views here.
 import logging
@@ -25,6 +26,7 @@ def quizs_home(request):
         return redirect('home')
 
 @login_required
+@subscription_required
 def take_quiz(request, foo):
     foo = foo.replace('-', ' ')
     context = {}  # Initialize context dictionary

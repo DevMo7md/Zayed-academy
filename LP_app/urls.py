@@ -14,7 +14,7 @@ urlpatterns = [
     path('logout/', views.logout_user, name='logout'),
     path('register/', views.register, name='register'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('api/get-subscription-stats/', views.get_subscription_stats, name='get_subscription_stats'),
+    path('api/get-subscription-stats/', views.get_and_update_subscription_stats, name='get_and_update_subscription_stats'),
     path('stat-dashboard/', views.stat_dashboard, name='stat_dashboard'),
     path('edit-lesson/<int:pk>/', views.edit_lesson, name='edit_lesson'),
     path('delete_lesson/<int:pk>/', views.delete_lesson, name='delete_lesson'),
@@ -22,6 +22,9 @@ urlpatterns = [
     path('delete-pdf/<int:pk>/', views.delete_pdf, name='delete_pdf'),
     path('teacher-video/', views.teacher_video, name='teacher_video'),
     path('teacher-pdf/', views.teacher_pdfs, name='teacher_pdf'),
-    path('verify_email/', views.verify_email, name='verify_email'),
+    path('verify-email/', views.verify_email, name='verify_email'),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('reset-password/<str:code>/', views.reset_password, name='reset_password'),
+
 
 ]

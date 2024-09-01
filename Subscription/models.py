@@ -17,7 +17,7 @@ class Subscription(models.Model):
         super().save(*args, **kwargs)
 
     def is_active(self):
-        return self.end_date and self.end_date >= timezone.now()  # استخدم timezone.now()
+        return self.end_date and self.end_date >= timezone.now()+ timedelta(hours=2)    # استخدم timezone.now()
 
     def __str__(self):
         return f"{self.user.username}'s subscription"

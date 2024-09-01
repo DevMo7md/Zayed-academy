@@ -59,5 +59,11 @@
         <h1 class="head">لوحة التحكم</h1>
         <hr>
         {% include 'parts/stats.html' %}
+        <div class="row m-1 mb-3">
+            <form method="POST" id="updateStatsForm">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background-color: blueviolet; font-family: 'Almarai', sans-serif; font-size:large;" name="update">تحديث الإحصائيات</button>
+            </form>
+        </div>   
     </div>
 {% endblock %}

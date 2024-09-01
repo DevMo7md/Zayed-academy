@@ -24,6 +24,18 @@
         object-fit: cover; /* لضمان أن الصورة تملأ الحاوية دون تشويه */
         border-radius: 8px;
     }
+    .blackout{
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 9999;
+        opacity: 1;
+    }
+
     @media(max-width: 512px){
         .content{
         display: grid;
@@ -52,13 +64,27 @@
                     <source src="{{ lesson.lesson.url }}" type="video/webm">
                     <source src="{{ lesson.lesson.url }}" type="video/oog">
                 </video>
+                <div class="blackout" id="blackout"></div>
             </div> 
-            {% else %}   
+            {% else %}
+            <div oncontextmenu="return false;" controlsList="nodownload" class="video-container" id="myVideo" width="640" height="360">
+                <video id="fakeVideo" controls>
+                <source src="path_to_your_low_quality_video.mp4" type="video/mp4">
+                متصفحك لا يدعم عرض الفيديو.
+                </video>
+            </div>       
             <div oncontextmenu="return false;" controlsList="nodownload" class="video-container" id="myVideo" width="640" height="360">
                 <video>
                     <source src="{{ lesson.lesson.url }}" type="video/mp4">
                     <source src="{{ lesson.lesson.url }}" type="video/webm">
                     <source src="{{ lesson.lesson.url }}" type="video/oog">
+                </video>
+                <div class="blackout" id="blackout"></div>
+            </div>
+            <div oncontextmenu="return false;" controlsList="nodownload" class="video-container" id="myVideo" width="640" height="360">
+                <video id="fakeVideo" controls>
+                <source src="path_to_your_low_quality_video.mp4" type="video/mp4">
+                متصفحك لا يدعم عرض الفيديو.
                 </video>
             </div>    
 
@@ -80,8 +106,75 @@
         {% endfor %}
     </div>
 </div>    
-    <script>
-        seekBar.addEventListener('input', function() {
+<script>
+    // إظهار الشاشة السوداء عند فقدان التركيز على النافذة
+    window.addEventListener('blur', function() {
+        const blackout = document.getElementById('blackout');
+        blackout.style.display = 'block';
+    });
+
+    // إخفاء الشاشة السوداء عند استعادة التركيز
+    window.addEventListener('focus', function() {
+        const blackout = document.getElementById('blackout');
+        blackout.style.display = 'none';
+    });
+
+    // تعطيل اختصارات لوحة المفاتيح الخاصة بالتقاط الشاشة أو الطباعة
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey && e.key === 's') || (e.ctrlKey && e.key === 'p')) {
+            e.preventDefault();
+        }
+    });
+
+    // تعطيل الزر الأيمن على الفيديو
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+
+    // التعرف على محاولة فتح أدوات المطور
+    (function() {
+        const devtools = function() {};
+        devtools.toString = function() {
+            throw new Error("تم تعطيل أدوات المطور");
+        };
+        Object.defineProperty(window, "_devtools", {
+            get: devtools
+        });
+    })();
+
+    // تعطيل الزر الأيمن على الفيديو
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+
+        // تعيين رابط الفيديو عبر JavaScript
+        const videoElement = document.getElementById('myVideo');
+        const videoSource = "{{ lesson.lesson.url }}"; // رابط الفيديو المشفر
+        videoElement.querySelector('source').src = videoSource;
+        videoElement.load();
+
+        // تعطيل بعض وظائف JavaScript لمنع تنزيل الفيديوهات
+        document.addEventListener('contextmenu', event => event.preventDefault()); // تعطيل الزر الأيمن
+
+        // تقييد أدوات المطور في المتصفح
+        (function() {
+            const devtools = function() {};
+            devtools.toString = function() {
+                throw new Error("تم تعطيل أدوات المطور");
+            };
+            Object.defineProperty(window, "_devtools", {
+                get: devtools
+            });
+        })();
+        // كشف محاولات التنزيل وتبديل الفيديو الحقيقي بالفيديو الوهمي
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                document.getElementById('myVideo').style.display = 'none';
+                document.getElementById('fakeVideo').style.display = 'block';
+            } else {
+                document.getElementById('myVideo').style.display = 'block';
+                document.getElementById('fakeVideo').style.display = 'none';
+            }
+        });
+    seekBar.addEventListener('input', function() {
     const time = video.duration * (seekBar.value / 100);
     console.log('Current Time:', time);  // للتحقق من الوقت الحالي
     video.currentTime = time;
@@ -91,4 +184,5 @@
     const seekBar = document.getElementById('seekBar');
 
     </script>
+
 {%endblock%}

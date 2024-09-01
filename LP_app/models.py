@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import uuid
 # Create your models here.
 # models.py
 
@@ -8,7 +9,8 @@ class EmailVerification(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=32)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    is_used = models.BooleanField(default=False, null=True, blank=True)  # لتتبع ما إذا تم استخدام الرمز أم لا
+    
 class Grade(models.Model):
     grade = models.CharField(max_length=50, null=True, blank=True)
 

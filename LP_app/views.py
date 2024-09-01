@@ -15,6 +15,7 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from .models import Grade, Student, EmailVerification
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 
 # Create your views here.
 def landing(request):
@@ -26,7 +27,7 @@ def home(request):
         videos = Lesson.objects.all()
         categories = Category.objects.all()
         # dashboard
-
+        
         context = {
             'videos': videos,
             'categories': categories,
@@ -122,7 +123,21 @@ def login_page(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+
+        # تحقق إذا كان المدخل بريد إلكتروني أو اسم مستخدم
+        users = User.objects.filter(Q(username=username) | Q(email=username))
+        if users.exists():
+            if users.count() == 1:
+                # الحصول على المستخدم الفردي
+                user = users.first()
+            else:
+                messages.warning(request, "هناك أكثر من حساب مرتبط بهذه البيانات.")
+                return redirect('login')
+        else:
+            messages.warning(request, "المستخدم غير موجود")
+            return redirect('login')
+
+        user = authenticate(request, username=user.username, password=password)
         if user is not None:
             if user.is_active:
                 login(request, user)
@@ -132,7 +147,7 @@ def login_page(request):
                 messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
                 return redirect('login')
         else:
-            messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
+            messages.warning(request, "كلمة المرور غير صحيحة")
             return redirect('login')
         
     return render(request, 'LP_app/login.html', {})
@@ -158,8 +173,8 @@ def register(request):
         password2 = request.POST['password2']
 
         if password1 == password2:
-            if User.objects.filter(username=username).exists():
-                messages.error(request, 'عذراً كلمة المرور لا تتوافق مع بعضها')
+            if User.objects.filter(Q(username=username) | Q(email=email)).exists():
+                messages.error(request, 'عذراً اسم المستخدم او البريد الالكتروتي مستخدم من قبل')
             
             else:
                 user = User.objects.create_user(username=username, email=email, password=password1, first_name=first_name, last_name=last_name)
@@ -167,11 +182,11 @@ def register(request):
                 user.save()
                 
                 # Generate a verification code
-                verification_code = get_random_string(length=8)
+                verification_code = get_random_string(length=32)
                 EmailVerification.objects.create(user=user, code=verification_code)
 
                 # Send verification email
-                verification_link = request.build_absolute_uri(f'/verify_email/?code={verification_code}')
+                verification_link = request.build_absolute_uri(f'/verify-email/?code={verification_code}')
                 send_mail(
                     'تأكيد البريد الإلكتروني',
                     f'يرجى تأكيد بريدك الإلكتروني عبر هذا الرابط: {verification_link}',
@@ -222,6 +237,50 @@ def verify_email(request):
         messages.error(request, 'رمز التحقق غير صالح أو منتهي الصلاحية.')
         return redirect('login')
 
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        user = User.objects.filter(email=email).first()
+        if user:
+            # Generate a verification code
+            verification_code = get_random_string(length=32)
+            EmailVerification.objects.update_or_create(user=user, code=verification_code)
+
+            # Send verification email
+            verification_link = request.build_absolute_uri(f'/reset-password/{verification_code}')
+            send_mail(
+                'إعادة تعيين كلمة المرور',
+                f'استخدم الرابط التالي لإعادة تعيين كلمة المرور: {verification_link}',
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+            )
+            messages.success(request, 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.')
+            return redirect('login')
+        else:
+            messages.error(request, 'البريد الإلكتروني غير مسجل.')
+    return render(request, 'LP_app/forgot_password.html')
+
+def reset_password(request, code):
+    verification = EmailVerification.objects.filter(code=code, is_used=False).first()
+    if not verification or (timezone.now() - verification.created_at).days > 1:
+        messages.error(request, 'الرابط غير صالح أو قد تم استخدامه.')
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        new_password = request.POST['password1']
+        confirm_password = request.POST['password2']
+        if new_password == confirm_password:
+            verification.user.password = make_password(new_password)
+            verification.user.save()
+            verification.is_used = True
+            verification.save()
+            messages.success(request, 'تم إعادة تعيين كلمة المرور بنجاح.')
+            return redirect('login')
+        else:
+            messages.error(request, 'كلمات المرور غير متطابقة.')
+    
+    return render(request, 'LP_app/reset_password.html', {'code': code})
+
 
 def logout_user (request):
     logout(request)
@@ -231,7 +290,7 @@ def logout_user (request):
 def dashboard(request):
 
 
-    if request.method == 'POST':
+    if request.method == 'POST' and 'share' in request.POST:
         title = request.POST.get('title')
         lesson_file = request.FILES.get('lesson')
         category_id = request.POST.get('category')
@@ -286,23 +345,39 @@ def dashboard(request):
 
 def stat_dashboard(request):
 
+    if request.method == 'POST' and request.user.is_superuser and 'update' in request.POST:
+        current_month = timezone.now().strftime("%d %B %Y")  # الحصول على الشهر الحالي
+        new_subscribers = Subscription.objects.count()  # حساب المشتركين الجدد
 
-    # الاحصائيات
+        # تحديث الإحصائيات في قاعدة البيانات
+        MonthlySubscription.objects.create(
+            month=current_month,
+            new_subscribers=new_subscribers
+        )
+
     return render(request, 'LP_app/statstic.html')
 
-def get_subscription_stats(request):
-    stats = MonthlySubscription.objects.all().values('month', 'new_subscribers', 'teacher__user__username')
+
+def get_and_update_subscription_stats(request):
+        # جلب بيانات الاشتراكات من قاعدة البيانات
+    stats = MonthlySubscription.objects.all().values('month', 'new_subscribers')
+    
+    # إعداد البيانات للإرجاع كـ JSON
     data = {
-        'labels': [f"{item['month']} - {item['teacher__user__username']}" for item in stats],
+        'labels': [item['month'] for item in stats],
         'datasets': [{
-            'label': 'الجدد في المنصة',
+            'label': 'عدد المشتركين الجدد',
             'data': [item['new_subscribers'] for item in stats],
             'backgroundColor': "#eeb5ff",
             'borderColor': "#c507ff",
             'borderWidth': 0.5,
         }]
     }
+    
+    # إعادة البيانات كـ JSON
     return JsonResponse(data)
+
+
 
 
 def edit_lesson(request, pk):
@@ -510,6 +585,7 @@ def profile(request, pk):
 def edit_profile(request):
     if request.method == 'POST':
         # معالجة البيانات المقدمة وتحديث معلومات المستخدم
+        
         username = request.POST.get('username')
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
@@ -532,6 +608,7 @@ def edit_profile(request):
         user.username = username
         user.email = email
         user.save()
+        
 
         try:
             alsaf = Grade.objects.get(id=alsaf_id)

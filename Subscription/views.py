@@ -7,6 +7,7 @@ from django.utils import timezone
 import requests
 from django.conf import settings
 from .payment_manager import PaymobCardManager
+from LP_app.models import *
 #handle callback using django
 import hmac
 import hashlib
@@ -20,19 +21,20 @@ from .models import *
 def subscribe(request):
     if request.method == 'POST':
         
-        
-
         paymob_manager = PaymobCardManager()
         integration_id = 4602060  # Your Payment Integration id to spicify what payment is it like (cards, or mobile wallet, etc..)
         amount = 120  # amount that you want the user to pay
         currency = "EGP"  # currency USD or EGP , etc..
+        user_name = User.objects.get(id=request.user.id)
+        student = Student.objects.get(user__id=request.user.id)
         paymentKey, orderId = paymob_manager.getPaymentKey(
                 amount=amount, 
                 currency=currency, 
                 integration_id=integration_id, 
-                email="request.user.email", 
-                phone_number=22323232, 
-                name='dwdwdwdwd'
+                email=request.user.email, 
+                phone_number=student.phone_num, 
+                first_name=user_name.first_name,
+                last_name=user_name.last_name,
                 )
         order = Order.objects.create(
             user = request.user,
