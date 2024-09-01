@@ -66,6 +66,16 @@
     ></button>
     </div>
     {% endfor %}{% endif %}
+        <div class="col-lg-12" id="searchbar">
+            <form class="d-flex" role="search" method="GET" action="{% url 'teacher_quiz' %}">
+                <input class="form-control me-2" name="search-bar" type="search" placeholder="Search" aria-label="Search" id="search" style="box-shadow:hsla(306, 60%, 68%, 0.666) 0 0 16px;">
+                <div class="input-group-append">
+                    <button class="btn btn-navbar" type="submit">
+                    <i class="fas fa-search"></i>
+                    </button>
+                <button class="btn btn-outline-success" type="submit" style="display: none;">Search</button>
+            </form>
+        </div><br>
     <div class="row tea-lessons">
         <h3 class="head">الأسئلة</h3>
         <hr />

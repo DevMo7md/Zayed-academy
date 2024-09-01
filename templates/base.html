@@ -15,7 +15,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
         />
         
-        <link rel="icon" type="image/x-icon" href="{% static 'images/zaied-logo.png' %}">
+        <link rel="icon" type="image/x-icon" href="{% static 'images/logo2.png' %}">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:ital,wght@0,100;0,300;0,400;0,500;0,700;0,800;0,900;1,100;1,300;1,400;1,500;1,700;1,800;1,900&family=Almarai:wght@300;400;700;800&family=Zain:wght@200;300;400;700;800;900&display=swap" rel="stylesheet">
@@ -40,6 +40,10 @@
         />
         
         <title>Zaied Academy</title>
+        <div id="loading" class="loading-overlay">
+            <img src="{% static 'images/output-onlinegiftools (1).gif' %}" alt="Loading...">
+        </div>
+
     {% block login %}
     </head>
     <body dir="rtl" class="light-theme">
@@ -91,13 +95,6 @@
                     {% endif %}
 
                 </ul>
-                <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
-                <form class="d-flex ms-5">
-                    <input class="form-control me-2" type="search" placeholder="بحث" aria-label="بحث" style="background-color: rgb(205, 152, 255); border:blueviolet; color:aliceblue;">
-                    <button class="btn btn-outline-light hidden" type="submit" style="margin: 5px;">بحث</button>
-                    
-                </form>
-                </ul>
                 <a id="theme-toggle"><i class="fas fa-adjust" onclick="toggleTheme()" style="color: white;"></i></a>
             </div>
         </div>
@@ -132,6 +129,18 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/2edd19b664.js" crossorigin="anonymous"></script>
+    <script>
+        window.addEventListener('beforeunload', function () {
+        // إظهار أيقونة التحميل عند بدء التنقل
+        document.getElementById('loading').style.visibility = 'visible';
+    });
+
+    window.addEventListener('load', function () {
+        // إخفاء أيقونة التحميل عند اكتمال تحميل الصفحة
+        document.getElementById('loading').style.visibility = 'hidden';
+    });
+
+    </script>
 </html>
 
 

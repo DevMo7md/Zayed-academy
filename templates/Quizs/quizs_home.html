@@ -30,7 +30,7 @@
     <div class="row row-cols-1 row-cols-md-3 g-3 justify-content-center">
         {% for cat in categories %}
         <div class="col">
-            <a href="{% url 'take_quiz' cat.name %}" class="text-decoration-none">
+            <a href="{% url 'take_quiz_home' cat.name %}" class="text-decoration-none">
                 <div class="card h-100 light-theme">
                     <img src="{{cat.image.url}}" class="card-img-top" alt="Course Image">
                     <div class="card-body">

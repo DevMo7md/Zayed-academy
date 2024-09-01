@@ -22,12 +22,12 @@ def quizs_home(request):
         return render(request, 'Quizs/quizs_home.html', context)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-        messages.error(request, "الفيديو المطلوب غير موجود!")
+        messages.error(request, "الامتحان المطلوب غير موجود!")
         return redirect('home')
 
-@login_required
-@subscription_required
-def take_quiz(request, foo):
+
+
+def take_quiz_home(request, foo):
     foo = foo.replace('-', ' ')
     context = {}  # Initialize context dictionary
     category = get_object_or_404(Category, name=foo)
@@ -35,7 +35,55 @@ def take_quiz(request, foo):
 
     if request.user.is_superuser or request.user.is_staff:
             
-        questions = Question.objects.filter(category=category)
+        lessons = Lesson.objects.filter(category=category)
+        categories = Category.objects.all()
+        if 'search-bar' in request.GET:
+                searched = request.GET['search-bar']
+                if searched:
+                    # Filter products based on the search query
+                    lessons = lessons.filter(Q(title__icontains=searched) | Q(discrebtion__icontains=searched))
+                    if not lessons:
+                        err = f'No results for {searched} \n Try checking your spelling or use more general terms'
+
+        context.update({
+            'category': category,
+            'lessons': lessons,
+            'categories': categories,
+        })
+    else:
+        student = get_object_or_404(Student, user=request.user)
+        category = get_object_or_404(Category, name=foo)
+        grade = student.alsaf
+        lessons = Lesson.objects.filter(Q(category=category) & Q(grade=grade))
+        categories = Category.objects.all()  # Define categories here as well
+        if 'search-bar' in request.GET:
+                searched = request.GET['search-bar']
+                if searched:
+                    # Filter products based on the search query
+                    lessons = lessons.filter(Q(title__icontains=searched) | Q(discrebtion__icontains=searched))
+                    if not lessons:
+                        err = f'No results for {searched} \n Try checking your spelling or use more general terms'
+
+        context.update({
+            'category': category,
+            'lessons': lessons,
+            'categories': categories,
+        })
+
+    return render(request, 'Quizs/take_quiz_home.html', context)
+
+
+@login_required
+@subscription_required
+
+def take_quiz(request, pk):
+
+    context = {}  # Initialize context dictionary
+    lesson = get_object_or_404(Lesson, id=pk)
+
+    if request.user.is_superuser or request.user.is_staff:
+            
+        questions = Question.objects.filter(lesson=lesson)
         categories = Category.objects.all()
 
         if request.method == "POST":
@@ -44,18 +92,18 @@ def take_quiz(request, foo):
                 if selected_choice_id:
                     selected_choice = get_object_or_404(Choice, id=selected_choice_id)
                     UserAnswer.objects.create(user=request.user, question=question, selected_choice=selected_choice)
-            return redirect('quiz_results', foo)
+            return redirect('quiz_results', pk)
         
         context.update({
-            'category': category,
+            'lesson': lesson,
             'questions': questions,
             'categories': categories,
         })
     else:
         student = get_object_or_404(Student, user=request.user)
-        category = get_object_or_404(Category, name=foo)
+        lesson = get_object_or_404(Lesson, id=pk)
         grade = student.alsaf
-        questions = Question.objects.filter(Q(category=category) & Q(grade=grade))
+        questions = Question.objects.filter(Q(lesson=lesson) & Q(grade=grade))
         categories = Category.objects.all()  # Define categories here as well
 
         if request.method == "POST":
@@ -64,10 +112,10 @@ def take_quiz(request, foo):
                 if selected_choice_id:
                     selected_choice = get_object_or_404(Choice, id=selected_choice_id)
                     UserAnswer.objects.create(user=request.user, question=question, selected_choice=selected_choice)
-            return redirect('quiz_results', foo)
-
+            return redirect('quiz_results', pk)
+        
         context.update({
-            'category': category,
+            'lesson': lesson,
             'questions': questions,
             'categories': categories,
         })
@@ -76,13 +124,12 @@ def take_quiz(request, foo):
 
 
 @login_required
-def quiz_results(request, foo):
-    foo = foo.replace('-', ' ')
+def quiz_results(request, pk):
     # Retrieve the specific category (quiz) by name
-    category = get_object_or_404(Category, name=foo)
+    lesson = get_object_or_404(Lesson, id=pk)
     
     # Filter user answers by the specific category
-    user_answers = UserAnswer.objects.filter(user=request.user, question__category=category)
+    user_answers = UserAnswer.objects.filter(user=request.user, question__lesson=lesson)
     
     total_questions = user_answers.count()
     correct_answers = user_answers.filter(selected_choice__is_correct=True).count()
@@ -92,7 +139,7 @@ def quiz_results(request, foo):
         'score': score,
         'total_questions': total_questions,
         'correct_answers': correct_answers,
-        'category': category,  # Pass category to the template for additional context
+        'lesson': lesson,  # Pass category to the template for additional context
     })
 
 
@@ -148,6 +195,14 @@ def teacher_quiz(request):
             messages.success(request, 'تم حفظ الإجابة بنجاح')
             return redirect('teacher_quiz')
         
+        if 'search-bar' in request.GET:
+            searched = request.GET['search-bar']
+            if searched:
+                # Filter products based on the search query
+                questions = questions.filter(Q(lesson__title__icontains=searched) | Q(grade__grade__icontains=searched) | Q(category__name__icontains=searched) | Q(text__icontains=searched))
+                if not questions:
+                    err = f'No results for {searched} \n Try checking your spelling or use more general terms'
+
         context = {
             'lessons':lessons,
             'grades':grades,

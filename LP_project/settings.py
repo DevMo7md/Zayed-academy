@@ -12,9 +12,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import environ
+from dotenv import load_dotenv
+from decouple import config  # أو من environ import Env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env()
+environ.Env.read_env()
 
 
 # Quick-start development settings - unsuitable for production
@@ -44,8 +49,8 @@ INSTALLED_APPS = [
 
 ]
 
-PAYMOB_API_KEY = "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2T1Rnek1URTJMQ0p1WVcxbElqb2lhVzVwZEdsaGJDSjkuOTVtRlJfcm9xSzlodzlpaU80UVoxUmRaRFZ2T3BiY0RQcFdGbjc0R05POVltbGpxUzZjcV9ZUV81THV2bGFzYzdpcVBLaVhLZUd4Qm40anFtMFp5MlE=="
-PAYMOB_INTEGRATION_ID = "4602060"
+PAYMOB_API_KEY = config('PAYMOB_API_KEY')
+PAYMOB_INTEGRATION_ID = config('PAYMOB_INTEGRATION_ID')
 
 TIME_ZONE = 'Africa/Cairo'
 USE_TZ = True
@@ -141,8 +146,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'mohammed5555ta@gmail.com'
-EMAIL_HOST_PASSWORD = 'zmmy gqce rnca snws'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

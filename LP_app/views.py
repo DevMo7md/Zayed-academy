@@ -17,9 +17,11 @@ from .models import Grade, Student, EmailVerification
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 
+
 # Create your views here.
 def landing(request):
     return render(request, 'LP_app/landing.html')
+
 
 def home(request):
 
@@ -36,6 +38,7 @@ def home(request):
     except:
         messages.error(request, "الفيديو المطلوب غير موجود!")
         return redirect('home')  # Redirect to main page if video doesn't exist
+
 
 def lesson (request, foo):
 
@@ -147,7 +150,7 @@ def login_page(request):
                 messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
                 return redirect('login')
         else:
-            messages.warning(request, "كلمة المرور غير صحيحة")
+            messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
             return redirect('login')
         
     return render(request, 'LP_app/login.html', {})
@@ -330,7 +333,7 @@ def dashboard(request):
     lesson_num = len(lessons)
     categories = Category.objects.all()
     grades = Grade.objects.all()
-    students_num = Subscription.objects.all().count()
+    students_num = Subscription.objects.filter(end_date__gte=timezone.now() + timedelta(hours=2)).count()
 
     context = {
         'lesson_titles': lesson_titles,
@@ -347,7 +350,7 @@ def stat_dashboard(request):
 
     if request.method == 'POST' and request.user.is_superuser and 'update' in request.POST:
         current_month = timezone.now().strftime("%d %B %Y")  # الحصول على الشهر الحالي
-        new_subscribers = Subscription.objects.count()  # حساب المشتركين الجدد
+        new_subscribers = Subscription.objects.filter(end_date__gte=timezone.now() + timedelta(hours=2)).count()  # حساب المشتركين الجدد
 
         # تحديث الإحصائيات في قاعدة البيانات
         MonthlySubscription.objects.create(

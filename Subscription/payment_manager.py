@@ -1,10 +1,10 @@
 import requests
 from django.shortcuts import get_object_or_404
 from LP_app.models import *
+from django.conf import settings
 
 
-
-apiKey = 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2T1Rnek1URTJMQ0p1WVcxbElqb2lhVzVwZEdsaGJDSjkuOTVtRlJfcm9xSzlodzlpaU80UVoxUmRaRFZ2T3BiY0RQcFdGbjc0R05POVltbGpxUzZjcV9ZUV81THV2bGFzYzdpcVBLaVhLZUd4Qm40anFtMFp5MlE='
+apiKey = settings.PAYMOB_API_KEY
 
 
 
@@ -44,10 +44,7 @@ class PaymobCardManager:
                 "api_key": api_key,
             }
         )
-        print("auth token")
-        print("---------------------------")
-        print(response.json())
-        print("-----------------------------")
+
         return response.json()["token"]
 
     def _getOrderId(self, authanticationToken, amount, currency):
@@ -61,10 +58,7 @@ class PaymobCardManager:
                 "items": [],
             }
         )
-        print("orderid")
-        print("---------------------------")
-        print(response.json()["id"])
-        print("--------------------------")
+        
         return response.json()["id"]
 
     def _getPaymentKey(self, authanticationToken, orderId, amount, currency, integration_id, email, phone_number, first_name, last_name):
@@ -94,10 +88,8 @@ class PaymobCardManager:
                     }
                     }
         )
-        print("paymentkey")
-        print("---------------------------")
-        print(response.json()["token"])
-        print("---------------------------")
+
+
         return response.json()["token"]
     
 
@@ -142,10 +134,7 @@ class PaymobWalletManager:
                 "api_key": api_key,
             }
         )
-        print("auth token")
-        print("---------------------------")
-        print(response.json()["token"])
-        print("-----------------------------")
+
         return response.json()["token"]
 
     def _getOrderId(self, authanticationToken, amount, currency):
@@ -159,10 +148,8 @@ class PaymobWalletManager:
                 "items": [],
             }
         )
-        print("orderid")
-        print("---------------------------")
-        print(response.json()["id"])
-        print("--------------------------")
+
+
         return response.json()["id"]
 
     def _getPaymentKey(self, authanticationToken, orderId, amount, currency, integration_id,email, phone_number, first_name, last_name):
@@ -192,10 +179,8 @@ class PaymobWalletManager:
                     }
                     }
         )
-        print("paymentkey")
-        print("---------------------------")
-        print(response.json()["token"])
-        print("---------------------------")
+
+
         return response.json()["token"]
 
 
@@ -217,10 +202,7 @@ def get_wallet_redirect_url(payment_key,wallet_num):
             "payment_token": payment_key  
         }
         )
-    print("redirect_url")
-    print(response.json()['iframe_redirection_url'])
 
-    print("---------------------------")
     return response.json()['iframe_redirection_url']
 
 
