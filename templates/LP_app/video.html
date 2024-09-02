@@ -68,12 +68,6 @@
             </div> 
             {% else %}
             <div oncontextmenu="return false;" controlsList="nodownload" class="video-container" id="myVideo" width="640" height="360">
-                <video id="fakeVideo" controls>
-                <source src="path_to_your_low_quality_video.mp4" type="video/mp4">
-                متصفحك لا يدعم عرض الفيديو.
-                </video>
-            </div>       
-            <div oncontextmenu="return false;" controlsList="nodownload" class="video-container" id="myVideo" width="640" height="360">
                 <video>
                     <source src="{{ lesson.lesson.url }}" type="video/mp4">
                     <source src="{{ lesson.lesson.url }}" type="video/webm">
@@ -81,13 +75,6 @@
                 </video>
                 <div class="blackout" id="blackout"></div>
             </div>
-            <div oncontextmenu="return false;" controlsList="nodownload" class="video-container" id="myVideo" width="640" height="360">
-                <video id="fakeVideo" controls>
-                <source src="path_to_your_low_quality_video.mp4" type="video/mp4">
-                متصفحك لا يدعم عرض الفيديو.
-                </video>
-            </div>    
-
             {% endif %}<hr><br>
             {% if lesson.bdf %}
             <a href="{{lesson.bdf.url}}" download="{{lesson.bdf.name}}" class="btn" style="background-color: blueviolet;"><i class="fa-solid fa-download"></i>  pdf تنزيل الحصة</a><br><br>
@@ -99,7 +86,11 @@
         {% for les in lessons %}
         <div class="card">
             <a href="{% url 'video' les.id %}" class="text-decoration-none">
+            {% if les.thumnale_image %}
                 <img class="thumnale" src="{{les.thumnale_image.url}}" alt="thumnale">
+                {% else %}
+                <img class="thumnale" src="{% static 'images/lesson.jpg' %}" alt="thumnale">
+            {% endif %}
                 <h5>{{ les.title }}</h5>
             </a>
         </div><hr><br>
@@ -164,24 +155,11 @@
                 get: devtools
             });
         })();
-        // كشف محاولات التنزيل وتبديل الفيديو الحقيقي بالفيديو الوهمي
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                document.getElementById('myVideo').style.display = 'none';
-                document.getElementById('fakeVideo').style.display = 'block';
-            } else {
-                document.getElementById('myVideo').style.display = 'block';
-                document.getElementById('fakeVideo').style.display = 'none';
-            }
-        });
     seekBar.addEventListener('input', function() {
     const time = video.duration * (seekBar.value / 100);
     console.log('Current Time:', time);  // للتحقق من الوقت الحالي
     video.currentTime = time;
 });
-
-    const video = document.getElementById('myVideo');
-    const seekBar = document.getElementById('seekBar');
 
     </script>
 

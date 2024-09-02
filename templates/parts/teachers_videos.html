@@ -1,9 +1,14 @@
+{% load static %}
 <div class="row tea-lessons">
     <h3 class="head">فيديوهاتك</h3>
     <hr />
     {% for lesson in lessonss %}
     <div class="col-md-4 video">
+        {% if lesson.thumnale_image %}
         <img src="{{lesson.thumnale_image.url}}" class="thumbnail-img" />
+        {% else %}
+        <img src="{% static 'images/lesson.jpg' %}" class="thumbnail-img" />
+        {% endif %}
         <hr />
         <h5>{{lesson.title}}</h5>
         <p>{{ lesson.discrebtion }}</p>

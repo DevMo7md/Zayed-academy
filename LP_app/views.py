@@ -28,8 +28,7 @@ def home(request):
     try:
         videos = Lesson.objects.all()
         categories = Category.objects.all()
-        # dashboard
-        
+        # dashboard 
         context = {
             'videos': videos,
             'categories': categories,
@@ -147,10 +146,10 @@ def login_page(request):
                 messages.success(request, "تم تسجيل الدخول بنجاح")
                 return redirect('home')
             else:
-                messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
+                messages.warning(request, "روح على تطبيق ال Gmail هتلاقي لينك دوس عليه علشان تفعل حسابك .")
                 return redirect('login')
         else:
-            messages.warning(request, "عذراً، حسابك لم يتم تفعيله بعد. يرجى التحقق من بريدك الإلكتروني.")
+            messages.warning(request, "روح على تطبيق ال Gmail هتلاقي لينك دوس عليه علشان تفعل حسابك .")
             return redirect('login')
         
     return render(request, 'LP_app/login.html', {})
@@ -220,7 +219,7 @@ def register(request):
                         government=government,
                         alsaf=grade_instance,)
                 student.save()
-                messages.success(request, 'لقد تم انشاء حسابك بنجاح ')
+                messages.success(request, 'لقد تم انشاء حسابك بنجاح. روح بقا على تطبيق ال Gmail هتلاقي لينك دوس عليه علشان تفعل حسابك .')
                 return redirect('login')
         else:
             messages.error(request, 'عذراً كلمة المرور غير متوافقة')
@@ -349,7 +348,7 @@ def dashboard(request):
 def stat_dashboard(request):
 
     if request.method == 'POST' and request.user.is_superuser and 'update' in request.POST:
-        current_month = timezone.now().strftime("%d %B %Y")  # الحصول على الشهر الحالي
+        current_month = (timezone.now()+ timedelta(hours=2)).strftime("%d %B %Y")  # الحصول على الشهر الحالي
         new_subscribers = Subscription.objects.filter(end_date__gte=timezone.now() + timedelta(hours=2)).count()  # حساب المشتركين الجدد
 
         # تحديث الإحصائيات في قاعدة البيانات
@@ -574,14 +573,18 @@ def profile(request, pk):
     # تأكد من أن المستخدم يشاهد ملفه الشخصي فقط
     if request.user.id != pk:
         return redirect('home')  # إعادة التوجيه إلى الصفحة الرئيسية إذا حاول المستخدم الوصول إلى ملف شخصي آخر
+    else:
+        student = get_object_or_404(Student, user__id=pk)
+        categories = Category.objects.all()
+        try:
+            status = Subscription.objects.get(user=request.user)
+        except:
+            status = False     
 
-    student = get_object_or_404(Student, user__id=pk)
-    enrolled_courses = student.enrolled_courses.all()
-    categories = Category.objects.all()
     context = {
         'student': student,
-        'enrolled_courses':enrolled_courses,
         'categories':categories,
+        'status':status,
     }
     return render(request, 'LP_app/profile.html', context)
 

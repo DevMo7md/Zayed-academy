@@ -33,7 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-PAYMOB_HMAC ='DADDAEF08C6ED42F0F9ABD19DF76927F'
+PAYMOB_HMAC =config('PAYMOB_HMAC')
 # Application definition
 
 INSTALLED_APPS = [
@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'LP_app.context_processor.subscription_status',
             ],
         },
     },

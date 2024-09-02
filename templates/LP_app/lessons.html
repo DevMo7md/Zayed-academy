@@ -32,7 +32,11 @@
         <div class="col">
             <a href="{% url 'video' video.id %}" class="text-decoration-none">
                 <div class="card h-100" style="padding: 20px;">
+                    {% if video.thumnale_image %}
                         <img src="{{video.thumnale_image.url}}" class="thumbnail-img" />
+                    {% else %}
+                        <img src="{% static 'images/lesson.jpg' %}" class="thumbnail-img" />
+                    {% endif %}    
                         <hr />
                         <h5>{{video.title}}</h5>
                         <p>{{ video.discrebtion }}</p>

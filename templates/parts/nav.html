@@ -25,15 +25,34 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'home' %}" >الصفحة الرئيسية</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'profile' pk=request.user.id %}" style="color: aliceblue;">الملف الشخصي</a>
+                    </li>
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'landing' %}" >الصفحة الرئيسية</a>
                     </li>
                     {% endif %}
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}" style="color: aliceblue;">لوحة التحكم</a>
+                    </li>
+                    {% else %}
+                    {% endif %}
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'pdfs' %}">كتبنا</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'quizs_home' %}" style="color: aliceblue;">امتحاناتك</a>
+                    </li>
+                    {% if not user.is_staff%}
+                    {% if not status %}
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'subscribe' %}">اشترك</a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'logout' %}">تسجيل خروج</a>
                     </li>
