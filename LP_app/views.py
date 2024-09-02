@@ -23,7 +23,7 @@ from django.contrib.auth.hashers import make_password
 def landing(request):
     return render(request, 'LP_app/landing.html')
 
-@login_required
+
 def home(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -40,7 +40,7 @@ def home(request):
         messages.error(request, "الفيديو المطلوب غير موجود!")
         return redirect('home')  # Redirect to main page if video doesn't exist
 
-@login_required
+
 def lesson (request, foo):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -97,7 +97,7 @@ def lesson (request, foo):
         messages.error(request, f"حدث خطأ غير متوقع: {str(e)}")
         return redirect('home')
     
-@login_required
+
 @subscription_required
 def video(request, pk):
     if request.user.is_anonymous:
@@ -295,7 +295,7 @@ def logout_user (request):
     messages.success(request, 'تم تسجيل الخروج بنجاح')
     return redirect('/')  # Redirect to main page after logout
 
-@login_required
+
 def dashboard(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -356,7 +356,7 @@ def dashboard(request):
         messages.error(request, 'عذراً, انت هذه الصفحة للمدرس فقط')
         return redirect('home')
     
-@login_required
+
 def stat_dashboard(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -398,7 +398,7 @@ def get_and_update_subscription_stats(request):
 
 
 
-@login_required
+
 def edit_lesson(request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -452,7 +452,7 @@ def edit_lesson(request, pk):
         }
         return render(request, 'LP_app/edit_lesson.html', context)
 
-@login_required
+
 def delete_lesson(request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -469,7 +469,7 @@ def delete_lesson(request, pk):
 
         return render(request, 'LP_app/delete_lesson.html', {'lesson' : lesson})
 
-@login_required
+
 def teacher_video(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -520,7 +520,7 @@ def teacher_video(request):
         return render(request, 'LP_app/teachers_videos.html', context)
 
 
-@login_required
+
 def teacher_pdfs(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -564,7 +564,7 @@ def teacher_pdfs(request):
         return render(request, 'LP_app/teacher_pdf.html', context)
 
 
-@login_required
+
 def edit_pdf(request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -610,7 +610,7 @@ def edit_pdf(request, pk):
         return render(request, 'LP_app/edit_pdf.html', context)
 
 
-@login_required
+
 def delete_pdf(request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -628,7 +628,6 @@ def delete_pdf(request, pk):
         return render(request, 'LP_app/delete_pdf.html', {'pdf' : pdf})
 
 
-@login_required
 def profile(request, pk):
     # تأكد من أن المستخدم يشاهد ملفه الشخصي فقط
     if request.user.is_anonymous:
@@ -653,7 +652,7 @@ def profile(request, pk):
     
 
 
-@login_required
+
 def edit_profile(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -719,7 +718,6 @@ def edit_profile(request):
         return render(request, 'LP_app/edit_user.html', context)
 
 
-@login_required
 def edit_ps(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -745,7 +743,7 @@ def edit_ps(request):
         return render(request, 'LP_app/edit_ps.html')
 
 
-@login_required
+
 @subscription_required
 def pdfs(request):
     if request.user.is_anonymous:

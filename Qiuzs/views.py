@@ -10,7 +10,7 @@ from LP_app.decorators import subscription_required
 # Create your views here.
 import logging
 
-@login_required
+
 def quizs_home(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -29,7 +29,7 @@ def quizs_home(request):
             messages.error(request, "الامتحان المطلوب غير موجود!")
             return redirect('home')
 
-@login_required
+
 def take_quiz_home(request, foo):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -131,7 +131,7 @@ def take_quiz(request, pk):
         return render(request, 'Quizs/take_quiz.html', context)
 
 
-@login_required
+
 def quiz_results(request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -154,7 +154,7 @@ def quiz_results(request, pk):
         })
 
 
-@login_required
+
 def teacher_quiz(request):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -228,7 +228,7 @@ def teacher_quiz(request):
             return render(request, 'Quizs/teacher_quiz.html', context)
 
 
-@login_required    
+    
 def edit_quiz (request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
@@ -280,7 +280,6 @@ def edit_quiz (request, pk):
             return render(request, 'Quizs/quiz_edit.html', context)
 
 
-@login_required
 def edit_choice(request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
