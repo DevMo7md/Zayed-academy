@@ -17,6 +17,8 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
+
+
 @login_required
 def subscribe(request):
     if request.method == 'POST':
