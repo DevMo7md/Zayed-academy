@@ -347,7 +347,7 @@ def dashboard(request):
 
 def stat_dashboard(request):
 
-    if request.method == 'POST' and request.user.is_superuser and 'update' in request.POST:
+    if request.method == 'POST' and request.user.is_staff and 'update' in request.POST:
         current_month = (timezone.now()+ timedelta(hours=2)).strftime("%d %B %Y")  # الحصول على الشهر الحالي
         new_subscribers = Subscription.objects.filter(end_date__gte=timezone.now() + timedelta(hours=2)).count()  # حساب المشتركين الجدد
 
