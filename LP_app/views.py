@@ -17,6 +17,8 @@ from django.utils.crypto import get_random_string
 from .models import Grade, Student, EmailVerification
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.http import require_POST
+
 
 
 # Create your views here.
@@ -633,7 +635,7 @@ def profile(request, pk):
     if request.user.is_anonymous:
         return redirect('landing')
     else:
-        if request.user.id != pk:
+        if not request.user.is_staff and request.user.id != pk:
             return redirect('home')  # إعادة التوجيه إلى الصفحة الرئيسية إذا حاول المستخدم الوصول إلى ملف شخصي آخر
         else:
             student = get_object_or_404(Student, user__id=pk)
@@ -708,14 +710,35 @@ def edit_profile(request):
         # إذا كان الطلب GET، قم بتحميل البيانات الحالية لعرضها في النموذج
         student = Student.objects.get(user=request.user)
         grade = Grade.objects.all()
-        enrolled_courses = student.enrolled_courses.all()
         context = {
             'student': student,
             'grade': grade,
-            'enrolled_courses':enrolled_courses,
         }
 
         return render(request, 'LP_app/edit_user.html', context)
+
+@login_required
+@require_POST
+
+def update_profile_picture(request, pk):
+    user = request.user
+    if request.user.id == pk:
+        student = get_object_or_404(Student, user__id=pk)
+
+        # تحقق مما إذا كان هناك صورة مقصوصة مرفوعة
+        cropped_image = request.FILES.get('cropped_image')
+
+        if cropped_image:
+            student.photo.save(f'{user.username}_profile.jpg', cropped_image)
+            student.save()
+            messages.success(request, 'تم تحديث الصورة الشخصية بنجاح!')
+            return JsonResponse({'success': True, 'new_image_url': student.photo.url})
+        else:
+            return JsonResponse({'success': False})
+    else:
+        messages.error(request, "فقط صاحب الملف الشخصي يمكنه تعديل صورته")
+        return redirect('home')
+
 
 
 def edit_ps(request):
@@ -776,4 +799,27 @@ def pdfs(request):
                 'err':err
                 }
         return render(request, 'LP_app/books.html',context)
+    
+def student_teacher(request):
+    if request.user.is_anonymous:
+        return redirect('landing')
+    else:
+        if request.user.is_staff :
+
+            subscriped_students = Student.objects.all()
+            if 'search-bar' in request.GET:
+                searched = request.GET['search-bar']
+                if searched:
+                    # Filter products based on the search query
+                    subscriped_students = subscriped_students.filter(Q(user__username__icontains=searched) | Q(first_name__icontains=searched) | Q(alsaf__grade__icontains=searched) | Q(second_name__icontains=searched) | Q(third_name__icontains=searched) | Q(last_name__icontains=searched) | Q(phone_num__icontains=searched) | Q(dad_num__icontains=searched) | Q(mom_num__icontains=searched) | Q(government__icontains=searched) | Q(school__icontains=searched))
+                    if not subscriped_students:
+                        err = f'No results for {searched} \n Try checking your spelling or use more general terms'
+        
+        else:
+            messages.warning(request, "هذه الصفحة للمدرس فقط")
+
+        context = {
+            'students':subscriped_students,
+        }
+        return render(request, 'LP_app/student_teacher.html', context)
     

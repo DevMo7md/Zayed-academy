@@ -27,7 +27,7 @@
         </div>
         {% endfor %}{% endif %}
   <div class="background"></div>
-  <a class="btn" style="background-color:rgb(145, 106, 182); color:rgb(0, 0, 0);  position:absolute; left:0; top:0; margin:20px; font-family:'Alegreya',sans-serif;z-index:9999;" href="{% url 'home' %}"><i class="fa-solid fa-arrow-left"></i></a>
+  <a class="btn" style="background-color:rgb(145, 106, 182); color:rgb(0, 0, 0);  position:absolute; left:0; top:0; margin:20px; font-family:'Alegreya',sans-serif;z-index:9999;" href="javascript:history.back()"><i class="fa-solid fa-arrow-left"></i></a>
   <div class="card">
     <img class="logo" src="{% static 'images/zaied-logo.png' %}">
 
@@ -87,10 +87,49 @@ hr {
     background-color: #93136f;
     color: #93136f;
 }
+
+.profile-picture-wrapper {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+.profile-picture {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 </style>
     <div class="row">
         <div class="col-md-3 border-right">
-            <div class="d-flex flex-column align-items-center text-center p-3 py-5">{% if student.photo %}<img class="rounded-circle mt-5" width="150px" src="{{student.photo.url}}">{%else%}<img class="rounded-circle mt-5" width="150px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg">{% endif %}<span class="font-weight-bold" style="font-family: 'Almarai', sans-serif;">{{student.first_name}} {{student.second_name}} {{student.last_name}}</span><span class="text-black-50">{{student.user.email}}</span><span> </span></div>
+            {% if request.user == student.user %}
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                {% if student.photo %}
+                <img class="rounded-circle mt-5" id="profileImage" width="150px" src="{{student.photo.url}}" style="cursor: pointer;">
+                {% else %}
+                <img class="rounded-circle mt-5" id="profileImage" width="150px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg" style="cursor: pointer;">
+                {% endif %}
+                <input type="file" id="imageUpload" style="display: none;" accept="image/*" />
+                <span class="font-weight-bold" style="font-family: 'Almarai', sans-serif;">{{student.first_name}} {{student.second_name}} {{student.last_name}}</span>
+                <span style="font-family: 'Almarai', sans-serif; color:#ab3f8c;">يمكنك تغيير صورة ملفك الشخصي عند الضعط عليها</span>
+                <div class="crop-photo-wrapper">
+                    <img id="imageToCrop" style="max-width: 100%; display: none;"><br>
+                    <button id="cropButton" class="btn" style="display: none; background-color:#9a26ae; color:#fff;">قص الصورة</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                {% if student.photo %}
+                <img class="rounded-circle mt-5" style="border-radius: 50%;" width="150px" src="{{student.photo.url}}">
+                {% else %}
+                <img class="rounded-circle mt-5" width="150px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg">
+                {% endif %}
+                <input type="file" id="imageUpload" style="display: none;" accept="image/*" />
+                <span class="font-weight-bold" style="font-family: 'Almarai', sans-serif;">{{student.first_name}} {{student.second_name}} {{student.last_name}}</span>
+            </div>            
+            {% endif %}
         </div>
         <div class="col-md-8 border-right">
             <div class="p-5 py-5" dir="rtl">
@@ -102,6 +141,36 @@ hr {
                     <h5 class="text-right" style="color: red; font-weight: bold;">غير مشترك</h5>
                     {% endif %}
                 </div>
+                <hr>
+                <div class="mb-3">
+                    <h4 class="text-right">اسم المستخدم :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.user.username}}</h5>
+                    <br>
+                    <h4 class="text-right">الاسم كامل :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.first_name}} {{student.second_name}} {{student.third_name}} {{student.last_name}}</h5>
+                    <br>
+                    <h4 class="text-right">البريد الالكتروني :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.user.email}}</h5>
+                    <br>
+                    <h4 class="text-right">اسم المدرسة :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.school}}</h5>
+                    <br>
+                    <h4 class="text-right">رقم الهاتف :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.phone_num}}</h5>
+                    <br>
+                    <h4 class="text-right">رقم هاتف الأب :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.dad_num}}</h5>
+                    <br>
+                    <h4 class="text-right">رقم هاتف الأم :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.mom_num}}</h5>
+                    <br>
+                    <h4 class="text-right">المحافظة :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.government}}</h5>
+                    <br>
+                    <h4 class="text-right">الصف :</h4>
+                    <h5 class="text-left" style="color: #93136f;">{{student.alsaf.grade}}</h5>
+                    <br>
+                </div>
                 {% if not status %}
                 <hr>
                 <div class="row mt-2">
@@ -109,10 +178,13 @@ hr {
                 </div>
                 {% endif %}
                 <hr><br>
+                {% if request.user.is_staff %}
+                {% else %}
                 <div class="row mt-3">
                     <div class="col-md-6"><a class="btn btn-success" href="{% url 'edit_profile' %}">تعديل بياناتك</a></div><br><br><br>
                     <div class="col-md-6"><a class="btn btn-success" href="{% url 'update_ps' %}">تغيير كلمة المرور</a></div>
                 </div>
+                {% endif %}
                 <div class="row mt-3">
                 </div>
                 <div class="mt-5 text-center"></div>
@@ -127,4 +199,91 @@ hr {
     </div>
 </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const imageUpload = document.getElementById("imageUpload");
+    const profileImage = document.getElementById("profileImage");
+    const cropButton = document.getElementById("cropButton");
+    const imageToCrop = document.getElementById("imageToCrop");
+    const loadingElement = document.getElementById("loading");
+    let cropper;
+
+    if (imageUpload && profileImage && cropButton && imageToCrop) {
+        profileImage.addEventListener("click", function() {
+            imageUpload.click();
+        });
+
+        imageUpload.addEventListener("change", function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const done = function(url) {
+                    imageToCrop.src = url;
+                    imageToCrop.style.display = 'block';
+                    cropButton.style.display = 'inline-block';
+
+                    // تفعيل Cropper.js على الصورة
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1, // قص الصورة كمربع
+                        viewMode: 1,
+
+                    });
+                };
+
+                if (URL) {
+                    done(URL.createObjectURL(file));
+                } else if (FileReader) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        done(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        cropButton.addEventListener("click", function() {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 500,  // عرض الصورة المقصوصة لزيادة الجودة
+                    height: 500, // ارتفاع الصورة المقصوصة لزيادة الجودة
+                    imageSmoothingQuality: 'high' // تحسين جودة الصورة
+                });
+
+                canvas.toBlob(function(blob) {
+                    const formData = new FormData();
+                    formData.append('cropped_image', blob);
+
+                    loadingElement.style.display = "block";
+
+                    fetch("{% url 'update_profile_picture' pk=student.user.id %}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const timestamp = new Date().getTime();
+                            profileImage.src = data.new_image_url + "?t=" + timestamp;
+                            window.location.reload(true);
+                        } else {
+                            alert("حدث خطأ أثناء تحميل الصورة. حاول مرة أخرى.");
+                        }
+                    })
+                    .catch(error => console.error("Error updating profile picture:", error))
+                    .finally(() => {
+                        loadingElement.style.display = "none";
+                    });
+                });
+            }
+        });
+    } else {
+        console.error("Some elements are not found in the DOM.");
+    }
+});
+
+</script>
 {% endblock login %}

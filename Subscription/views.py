@@ -121,7 +121,7 @@ def processed_callback(request):
 
         # Get the received HMAC from query parameters
         hmac_received = request.GET.get('hmac')
-       
+    
 
         if generated_hmac == hmac_received:
             # Process the transaction as needed
@@ -138,6 +138,9 @@ def processed_callback(request):
                 subscription.start_date = timezone.now() + timedelta(hours=2)  
                 subscription.end_date = subscription.start_date + timedelta(days=30)
                 subscription.save()
+                student = Student.objects.get(user=user)
+                student.subscription_active = True
+                student.save()
 
                 return redirect('home')
 

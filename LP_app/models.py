@@ -38,7 +38,6 @@ class Student(models.Model):
     government = models.CharField(max_length=255, null=True, blank=True)
     alsaf = models.ForeignKey(Grade ,on_delete=models.CASCADE ,null=True, blank=True)
     photo = models.ImageField(upload_to='student_photos', null=True, blank=True)
-    enrolled_courses = models.ManyToManyField(Category, related_name='students')
     is_verified = models.BooleanField(default=False)
     subscription_active = models.BooleanField(default=False)
     subscription_expiry = models.DateTimeField(null=True, blank=True)

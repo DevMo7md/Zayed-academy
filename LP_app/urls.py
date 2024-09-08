@@ -25,6 +25,8 @@ urlpatterns = [
     path('verify-email/', views.verify_email, name='verify_email'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('reset-password/<str:code>/', views.reset_password, name='reset_password'),
+    path('student-teacher/', views.student_teacher, name='student_teacher'),
+    path('update-profile-picture/<int:pk>/', views.update_profile_picture, name='update_profile_picture'),
 
 
 ]
